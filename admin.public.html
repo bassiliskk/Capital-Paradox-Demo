@@ -1,0 +1,1824 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | CAPITAL Paradox</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+body{
+  background:#050505;
+  color:white;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav{
+  background:#050505;
+  border-bottom:1px solid #DC2626;
+  padding:16px;
+  display:flex;
+  gap:20px;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap: wrap;
+}
+
+.nav a{ 
+  color:white; 
+  text-decoration:none;
+  transition: color 0.3s;
+}
+
+.nav a:hover {
+  color: #DC2626;
+}
+
+.logout-btn{
+  border:1px solid #DC2626;
+  padding:6px 14px;
+  color:white;
+  font-size:12px;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.logout-btn:hover{
+  background:#DC2626;
+}
+
+.panel{
+  border:1px solid #DC2626;
+  border-radius:16px;
+  padding:24px;
+  margin:40px auto;
+  max-width:95%;
+  background:#050505;
+  overflow-x: auto;
+}
+
+.admin-table{
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.admin-table th{
+  background:#DC2626;
+  padding:12px 8px;
+  text-align:center;
+  font-size:14px;
+  border:1px solid #DC2626;
+  font-weight:bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-table td{
+  padding:8px;
+  text-align:center;
+  border:1px solid #333;
+}
+
+.admin-table td:first-child{
+  background:#1a1a1a;
+  font-weight:bold;
+  text-align:left;
+  padding-left:16px;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+}
+
+.btn{
+  border:1px solid #DC2626;
+  padding:8px 4px;
+  text-align:center;
+  cursor:pointer;
+  color:white;
+  transition:.3s;
+  font-size:11px;
+  display:block;
+  width:100%;
+}
+
+.btn:hover{
+  background:#DC2626;
+}
+
+.state{
+  font-size:10px;
+  margin-top:4px;
+  color:#ff6666;
+  text-transform: uppercase;
+}
+
+.state.revoked { color: #ef4444; }
+.state.access { color: #3b82f6; }
+.state.passed { color: #22c55e; }
+.state.eliminated { color: #787878; }
+
+.team-input-section{
+  margin-bottom:20px;
+  padding:16px;
+  background:#1a1a1a;
+  border-radius:8px;
+}
+
+.team-input{
+  background:#050505;
+  border:1px solid #DC2626;
+  color:white;
+  padding:8px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size:12px;
+  width:200px;
+  margin-right:8px;
+}
+
+.team-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+}
+
+.add-team-btn{
+  background:#DC2626;
+  border:none;
+  color:white;
+  padding:8px 16px;
+  cursor:pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size:12px;
+  transition:.3s;
+}
+
+.add-team-btn:hover{
+  background:white;
+  color:#DC2626;
+}
+
+.add-team-btn:disabled {
+  background:#444;
+  color:#888;
+  cursor:not-allowed;
+}
+
+.team-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.team-tag{
+  background:#DC2626;
+  padding:4px 12px;
+  border-radius:4px;
+  font-size:11px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.budget-table{
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.budget-table th{
+  background:#111;
+  color:#DC2626;
+  padding:8px;
+  text-align:left;
+  font-size:12px;
+  border:1px solid #333;
+}
+
+.budget-table td{
+  padding:8px;
+  border:1px solid #333;
+  font-size:12px;
+}
+
+.budget-input{
+  background:#050505;
+  border:1px solid #DC2626;
+  color:white;
+  padding:6px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size:12px;
+  width:100%;
+}
+
+.budget-toggle{
+  transform: scale(1.1);
+}
+
+.budget-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.budget-actions .btn{
+  max-width:180px;
+}
+
+.remove-team{
+  cursor:pointer;
+  font-weight:bold;
+  opacity: 0.7;
+}
+
+.remove-team:hover{
+  opacity: 1;
+  color:#fff;
+}
+
+.loading{
+  text-align:center;
+  padding:40px;
+  color:#DC2626;
+}
+
+.loading-spinner {
+  border: 3px solid #333;
+  border-top: 3px solid #DC2626;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #DC2626;
+  color: #DC2626;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .panel {
+    margin: 20px auto;
+    padding: 16px;
+  }
+  
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 5, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-panel {
+  background: #0b0b0b;
+  border: 1px solid #DC2626;
+  padding: 24px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(220, 38, 38, 0.2);
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.modal-input {
+  margin-top: 12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="nav" role="navigation" aria-label="Admin navigation">
+  <div class="flex gap-6 flex-wrap">
+    <a href="index.html">HOME</a>
+    <a href="rounds.html">ROUNDS</a>
+    <a href="admin-rounds.html">ROUNDS ADMIN</a>
+    <a href="rules.html">RULES</a>
+    <a href="contact.html">REGISTER</a>
+  </div>
+
+  <button class="logout-btn" onclick="logout()" aria-label="Log out from admin panel">LOG OUT</button>
+</nav>
+
+  <div class="panel">
+  <h1 style="color:#DC2626;font-size:22px;margin-bottom:12px;">
+  ADMIN CONTROL PANEL
+  </h1>
+
+<div id="loading" class="loading">
+  <div class="loading-spinner"></div>
+  <p>Loading Firebase data...</p>
+</div>
+
+<div id="error-display" class="error-message" style="display: none;">
+  <p id="error-text"></p>
+  <button onclick="window.location.reload()" class="add-team-btn mt-4">RETRY</button>
+</div>
+
+<div id="admin-content" style="display:none;">
+  <!-- Auction Control Section -->
+  <div class="team-input-section" id="auction-control-section">
+    <div style="color:#DC2626;font-size:12px;font-weight:bold;margin-bottom:8px;">
+      AUCTION CONTROL
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+      <div>
+        <p class="text-gray-400 text-xs">Auction status</p>
+        <p id="auction-status-label" class="text-white text-sm">LOADING...</p>
+      </div>
+      <div>
+        <button class="add-team-btn" onclick="openAuction()" id="auction-open-btn">OPEN AUCTION</button>
+      </div>
+      <div>
+        <button class="btn" onclick="closeAuction()" id="auction-close-btn">CLOSE AUCTION</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auction Budget Settings -->
+  <div class="team-input-section" id="budget-section">
+    <div style="color:#DC2626;font-size:12px;font-weight:bold;margin-bottom:8px;">
+      AUCTION SETTINGS (ACTUAL VALUES)
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:12px;">
+      <div style="min-width:220px;flex:1;">
+        <label for="auction-search" style="color:#DC2626;font-size:11px;display:block;margin-bottom:6px;">
+          SEARCH ITEMS
+        </label>
+        <input 
+          type="text"
+          id="auction-search"
+          class="budget-input"
+          placeholder="Search by item name or number">
+      </div>
+      <div style="min-width:180px;">
+        <label for="auction-category" style="color:#DC2626;font-size:11px;display:block;margin-bottom:6px;">
+          CATEGORY FILTER
+        </label>
+        <select id="auction-category" class="budget-input">
+          <option value="all">ALL</option>
+          <option value="Antiques">ANTIQUES</option>
+          <option value="Stocks">STOCKS</option>
+          <option value="Goods">GOODS</option>
+        </select>
+      </div>
+      <div style="min-width:200px;">
+        <label for="auction-winner-bulk" style="color:#DC2626;font-size:11px;display:block;margin-bottom:6px;">
+          BULK WINNER (NEXT DISPLAYED)
+        </label>
+        <input id="auction-winner-bulk" class="budget-input" list="team-options" placeholder="Search team..." />
+      </div>
+      <div style="min-width:120px;">
+        <label for="auction-winner-count" style="color:#DC2626;font-size:11px;display:block;margin-bottom:6px;">
+          COUNT
+        </label>
+        <input id="auction-winner-count" type="number" min="1" step="1" value="1" class="budget-input" />
+      </div>
+      <div style="min-width:160px;margin-top:18px;">
+        <button class="btn" onclick="assignWinnerNext()">ASSIGN WINNER</button>
+      </div>
+      <div style="min-width:160px;display:flex;align-items:center;gap:8px;margin-top:18px;">
+        <input type="checkbox" id="auction-display-only" class="budget-toggle" />
+        <label for="auction-display-only" style="color:#DC2626;font-size:11px;">DISPLAYED ONLY</label>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+      <div style="min-width:220px;flex:1;">
+        <label for="budget-total-input" style="color:#DC2626;font-size:11px;display:block;margin-bottom:6px;">
+          TOTAL POINTS
+        </label>
+        <input 
+          type="number"
+          id="budget-total-input"
+          class="budget-input"
+          min="0"
+          step="1"
+          aria-label="Total points for round one">
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div style="color:#DC2626;font-size:11px;margin-bottom:6px;">
+        ITEM LIST (VISIBLE TO TEAMS)
+      </div>
+      <div id="budget-items-container"></div>
+      <datalist id="team-options"></datalist>
+      <div class="budget-actions">
+        <button class="add-team-btn" onclick="addBudgetItem()">+ ADD ITEM</button>
+        <button class="btn" onclick="revealAllItems()">REVEAL ALL ACTUALS</button>
+        <button class="btn" onclick="hideAllItems()">HIDE ALL ACTUALS</button>
+        <button class="btn" onclick="displayNextItem()">DISPLAY NEXT</button>
+        <button class="btn" onclick="revealNextItem()">REVEAL NEXT</button>
+        <button class="btn" onclick="hideAllDisplayedItems()">HIDE ALL ITEMS</button>
+      </div>
+      <p class="text-gray-400 text-xs mt-2">Changes save automatically.</p>
+    </div>
+  </div>
+
+  <!-- Leaderboard Panel -->
+  <div class="panel">
+    <h2 style="color:#DC2626;margin-bottom:20px;font-size:24px;display:flex;align-items:center;gap:12px;">
+      <span>ðŸ“Š</span>
+      <span>LIVE LEADERBOARD</span>
+      <span id="leaderboard-last-update" style="font-size:11px;color:#888;margin-left:auto;"></span>
+    </h2>
+    
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <button class="btn" onclick="refreshLeaderboard()" id="refresh-leaderboard-btn">
+        ðŸ”„ REFRESH NOW
+      </button>
+      <button class="btn" onclick="exportLeaderboard()">
+        ðŸ“¥ EXPORT CSV
+      </button>
+      <button class="btn" onclick="toggleAutoRefresh()" id="toggle-auto-refresh">
+        â–¶ï¸ AUTO-REFRESH: OFF
+      </button>
+      <button class="btn" onclick="checkSuspiciousActivity()">
+        ðŸš¨ CHECK SUSPICIOUS ACTIVITY
+      </button>
+    </div>
+    
+    <div id="leaderboard-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;">
+      <!-- Stats filled by JS -->
+    </div>
+    
+    <div id="leaderboard-container">
+      <p style="color:#888;text-align:center;padding:40px;">Loading leaderboard...</p>
+    </div>
+  </div>
+
+  <!-- Team Details Modal -->
+<div id="team-details-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;padding:20px;overflow:auto;">
+
+  <div style="max-width:1000px;margin:40px auto;background:#050505;border:2px solid #DC2626;border-radius:12px;padding:32px;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h2 id="team-details-title" style="color:#DC2626;font-size:24px;"></h2>
+
+      <button onclick="closeTeamDetails()"
+              style="background:#DC2626;color:white;border:none;padding:8px 16px;cursor:pointer;border-radius:4px;">
+        âœ• CLOSE
+      </button>
+    </div>
+
+    <div id="team-details-content"></div>
+
+  </div>
+</div>
+
+<!-- Suspicious Activity Modal -->
+<div id="suspicious-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;padding:20px;overflow:auto;">
+
+  <div style="max-width:1000px;margin:40px auto;background:#050505;border:2px solid #ef4444;border-radius:12px;padding:32px;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h2 style="color:#ef4444;font-size:24px;">
+        ðŸš¨ SUSPICIOUS ACTIVITY REPORT
+      </h2>
+
+      <button onclick="closeSuspiciousModal()"
+              style="background:#ef4444;color:white;border:none;padding:8px 16px;cursor:pointer;border-radius:4px;">
+        âœ• CLOSE
+      </button>
+    </div>
+
+    <div id="suspicious-content"></div>
+
+  </div>
+</div>
+
+
+<!-- Load Firebase Config -->
+<!-- Firebase Config (redacted for public sharing) -->
+<script>
+  // Public share version: replace with your real config in a private file.
+  const firebaseConfig = {
+    apiKey: "REDACTED",
+    authDomain: "REDACTED",
+    databaseURL: "REDACTED",
+    projectId: "REDACTED",
+    storageBucket: "REDACTED",
+    messagingSenderId: "REDACTED",
+    appId: "REDACTED"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  async function validateAdminAccess(password) {
+    // Redacted: implement server-side validation.
+    return false;
+  }
+</script>
+
+<script>
+// ==========================================
+// MODAL HELPERS
+// ==========================================
+
+function showModal(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("admin-modal");
+    const msg = document.getElementById("admin-modal-message");
+    const input = document.getElementById("admin-modal-input");
+    const ok = document.getElementById("admin-modal-ok");
+    const cancel = document.getElementById("admin-modal-cancel");
+
+    msg.textContent = message;
+    input.style.display = "none";
+    cancel.style.display = "none";
+    modal.style.display = "flex";
+
+    const cleanup = () => {
+      modal.style.display = "none";
+      ok.removeEventListener("click", onOk);
+      cancel.removeEventListener("click", onCancel);
+    };
+
+    const onOk = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    ok.addEventListener("click", onOk);
+    cancel.addEventListener("click", onCancel);
+  });
+}
+
+function confirmAction(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("admin-modal");
+    const msg = document.getElementById("admin-modal-message");
+    const input = document.getElementById("admin-modal-input");
+    const ok = document.getElementById("admin-modal-ok");
+    const cancel = document.getElementById("admin-modal-cancel");
+
+    msg.textContent = message;
+    input.style.display = "none";
+    cancel.style.display = "inline-block";
+    modal.style.display = "flex";
+
+    const cleanup = () => {
+      modal.style.display = "none";
+      ok.removeEventListener("click", onOk);
+      cancel.removeEventListener("click", onCancel);
+    };
+
+    const onOk = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    ok.addEventListener("click", onOk);
+    cancel.addEventListener("click", onCancel);
+  });
+}
+
+function requestPassword() {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("admin-modal");
+    const msg = document.getElementById("admin-modal-message");
+    const input = document.getElementById("admin-modal-input");
+    const ok = document.getElementById("admin-modal-ok");
+    const cancel = document.getElementById("admin-modal-cancel");
+
+    msg.textContent = "Enter admin password:";
+    input.value = "";
+    input.style.display = "block";
+    cancel.style.display = "inline-block";
+    modal.style.display = "flex";
+    input.focus();
+
+    const cleanup = () => {
+      modal.style.display = "none";
+      ok.removeEventListener("click", onOk);
+      cancel.removeEventListener("click", onCancel);
+    };
+
+    const onOk = () => {
+      const val = input.value.trim();
+      cleanup();
+      resolve(val || null);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    ok.addEventListener("click", onOk);
+    cancel.addEventListener("click", onCancel);
+  });
+}
+
+// ==========================================
+// ADMIN ACCESS CHECK - IMPROVED SECURITY
+// ==========================================
+
+const ADMIN_SESSION_KEY = "capital_admin_session";
+
+// Check if admin is logged in
+async function checkAdminAuth() {
+  if(sessionStorage.getItem(ADMIN_SESSION_KEY) !== "true"){
+    // Prompt for password
+    const password = await requestPassword();
+    
+    if (!password) {
+      await showModal("Unauthorized access. Redirecting...");
+      window.location.href = "rounds.html";
+      return false;
+    }
+    
+    try {
+      const isValid = await validateAdminAccess(password);
+      if (!isValid) {
+        await showModal("Invalid password. Redirecting...");
+        window.location.href = "rounds.html";
+        return false;
+      }
+      sessionStorage.setItem(ADMIN_SESSION_KEY, "true");
+      return true;
+    } catch (e) {
+      await showModal("Authentication error. Redirecting...");
+      window.location.href = "rounds.html";
+      return false;
+    }
+  }
+  return true;
+}
+
+const STATES = ["revoked","access","passed","eliminated"];
+const DEFAULT_ITEMS_VERSION = "2026-02-16-v3";
+const DEFAULT_ITEMS_VERSION_KEY = "capital_defaults_version";
+const AUCTION_CONFIG_PATH = "auctionConfig";
+const AUCTION_ITEMS_PATH = "auctionItems";
+const AUCTION_STATUS_PATH = "auctionStatus";
+const AUCTION_BIDS_PATH = "auctionBids";
+let budgetState = { totalCapital: 100000 };
+let auctionItemsState = {};
+let budgetSaveTimer = null;
+let teamListCache = [];
+let auctionFilterState = {
+  search: "",
+  category: "all",
+  displayedOnly: false
+};
+
+// ==========================================
+// FIREBASE DATABASE FUNCTIONS
+// ==========================================
+
+function showError(message) {
+  document.getElementById("error-text").innerText = message;
+  document.getElementById("error-display").style.display = "block";
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("admin-content").style.display = "none";
+}
+
+function getTeamList(callback){
+  if (!database) {
+    showError("Firebase not initialized. Check your firebase-config.js");
+    return;
+  }
+  
+  database.ref('teamList').once('value').then((snapshot) => {
+    const teams = snapshot.val() || ["ALPHA", "BETA", "GAMMA"];
+    callback(teams);
+  }).catch((error) => {
+    console.error("Error fetching team list:", error);
+    showError("Failed to load team list. Check your connection.");
+  });
+}
+
+function setTeamList(teams){
+  if (!database) return;
+  database.ref('teamList').set(teams).catch((error) => {
+    console.error("Error saving team list:", error);
+    showModal("Failed to save team list. Please try again.");
+  });
+}
+
+function getTeamStates(callback){
+  if (!database) {
+    showError("Firebase not initialized.");
+    return;
+  }
+  
+  database.ref('teamStates').once('value').then((snapshot) => {
+    const states = snapshot.val() || {};
+    callback(states);
+  }).catch((error) => {
+    console.error("Error fetching team states:", error);
+    showError("Failed to load team states. Check your connection.");
+  });
+}
+
+function openAuction() {
+  if (!database) return;
+  database.ref(AUCTION_STATUS_PATH).set("open").catch((error) => {
+    console.error("Error opening auction:", error);
+    showModal("Failed to open auction.");
+  });
+}
+
+function closeAuction() {
+  if (!database) return;
+  database.ref(AUCTION_STATUS_PATH).set("closed").catch((error) => {
+    console.error("Error closing auction:", error);
+    showModal("Failed to close auction.");
+  });
+}
+
+function listenAuctionStatus() {
+  if (!database) return;
+  database.ref(AUCTION_STATUS_PATH).on("value", (snapshot) => {
+    const raw = snapshot.val();
+    const status = raw || "closed";
+    const label = document.getElementById("auction-status-label");
+    const openBtn = document.getElementById("auction-open-btn");
+    const closeBtn = document.getElementById("auction-close-btn");
+    if (label) label.textContent = status.toUpperCase();
+    if (openBtn) openBtn.disabled = status === "open";
+    if (closeBtn) closeBtn.disabled = status === "closed";
+    if (!raw) {
+      database.ref(AUCTION_STATUS_PATH).set("closed");
+    }
+  });
+}
+
+// ==========================================
+// AUCTION BUDGET CONFIGURATION
+// ==========================================
+
+const DEFAULT_AUCTION_ITEMS = [
+    { number: 1, category: "Antiques", name: "Samurai sword", actualValue: 6400 },
+    { number: 2, category: "Antiques", name: "Crown replica", actualValue: 6000 },
+    { number: 3, category: "Antiques", name: "Medieval shield", actualValue: 24000 },
+    { number: 4, category: "Antiques", name: "Pharoah statue", actualValue: 5800 },
+    { number: 5, category: "Antiques", name: "Brass telescope", actualValue: 9000 },
+    { number: 6, category: "Antiques", name: "Vintage typewriter", actualValue: 6000 },
+    { number: 7, category: "Antiques", name: "Pocket watch", actualValue: 6750 },
+    { number: 8, category: "Antiques", name: "Scroll replica", actualValue: 5250 },
+    { number: 9, category: "Antiques", name: "Gramophone", actualValue: 10200 },
+    { number: 10, category: "Antiques", name: "Historical dossier", actualValue: 12375 },
+    { number: 11, category: "Antiques", name: "Old globe map", actualValue: 22000 },
+    { number: 12, category: "Antiques", name: "Ming dynasty vase", actualValue: 5600 },
+    { number: 13, category: "Antiques", name: "Buddha sculpture", actualValue: 26000 },
+    { number: 14, category: "Stocks", name: "Biotech innovator", actualValue: 33000 },
+    { number: 15, category: "Stocks", name: "Titanic ticket", actualValue: 6800 },
+    { number: 16, category: "Stocks", name: "Old Coal Co.", actualValue: 5400 },
+    { number: 17, category: "Stocks", name: "Subprime mortgage fund", actualValue: 11250 },
+    { number: 18, category: "Stocks", name: "FMCG stocks", actualValue: 13800 },
+    { number: 19, category: "Stocks", name: "Govt. Bond", actualValue: 7500 },
+    { number: 20, category: "Stocks", name: "Vintage rail bonds", actualValue: 5600 },
+    { number: 21, category: "Stocks", name: "Traditional bank", actualValue: 15000 },
+    { number: 22, category: "Stocks", name: "Green energy", actualValue: 18000 },
+    { number: 23, category: "Stocks", name: "Ai tech", actualValue: 35000 },
+    { number: 24, category: "Stocks", name: "Dot-com stock", actualValue: 6400 },
+    { number: 25, category: "Stocks", name: "Blue chip reliant", actualValue: 9750 },
+    { number: 26, category: "Stocks", name: "Stock", actualValue: 38000 },
+    { number: 27, category: "Stocks", name: "Crypto NeoCoin", actualValue: 36000 },
+    { number: 28, category: "Goods", name: "Luxury wine", actualValue: 5600 },
+    { number: 29, category: "Goods", name: "Antique furniture", actualValue: 5400 },
+    { number: 30, category: "Goods", name: "Exotic perfume", actualValue: 10875 },
+    { number: 31, category: "Goods", name: "Copper coins", actualValue: 12000 },
+    { number: 32, category: "Goods", name: "Artisan pottery", actualValue: 9000 },
+    { number: 33, category: "Goods", name: "Gold bar", actualValue: 22200 },
+    { number: 34, category: "Goods", name: "Ancient spices", actualValue: 6375 },
+    { number: 35, category: "Goods", name: "Premium artwork", actualValue: 31000 },
+    { number: 36, category: "Goods", name: "Rare gemstones", actualValue: 34000 },
+    { number: 37, category: "Goods", name: "Silk bundle", actualValue: 7125 },
+    { number: 38, category: "Goods", name: "Silver unicorn", actualValue: 29000 },
+    { number: 39, category: "Goods", name: "Energy battery", actualValue: 32000 },
+    { number: 40, category: "Goods", name: "Hitler car", actualValue: 6000 }
+  ];
+
+function normalizeBudgetState(data) {
+  const raw = data || {};
+  const totalCapital = Number(raw.totalCapital);
+  return {
+    totalCapital: Number.isFinite(totalCapital) ? totalCapital : 100000
+  };
+}
+
+function normalizeAuctionItems(data) {
+  const raw = data || {};
+  const items = {};
+
+  Object.keys(raw).forEach((id) => {
+    const item = raw[id] || {};
+    items[id] = {
+      number: Number(item.number) || 0,
+      category: typeof item.category === "string" ? item.category : "Antiques",
+      name: typeof item.name === "string" ? item.name : "Unnamed Item",
+      actualValue: Number(item.actualValue) || 0,
+      display: item.display !== false,
+      reveal: item.reveal === true,
+      winnerTeam: typeof item.winnerTeam === "string" ? item.winnerTeam : "",
+      displayedAt: Number(item.displayedAt) || 0,
+      revealedAt: Number(item.revealedAt) || 0
+    };
+  });
+
+  return items;
+}
+
+function scheduleBudgetSave() {
+  if (!database) return;
+  clearTimeout(budgetSaveTimer);
+  budgetSaveTimer = setTimeout(() => {
+    Promise.all([
+      database.ref(AUCTION_CONFIG_PATH).set(budgetState),
+      database.ref(AUCTION_ITEMS_PATH).set(auctionItemsState)
+    ]).catch((error) => {
+      console.error("Error saving auction config:", error);
+      showModal("Failed to save auction settings. Please try again.");
+    });
+  }, 400);
+}
+
+function renderBudgetSection() {
+  const totalInput = document.getElementById("budget-total-input");
+  const container = document.getElementById("budget-items-container");
+  const searchInput = document.getElementById("auction-search");
+  const categorySelect = document.getElementById("auction-category");
+  const displayOnlyToggle = document.getElementById("auction-display-only");
+  const bulkWinnerSelect = document.getElementById("auction-winner-bulk");
+  const bulkWinnerCount = document.getElementById("auction-winner-count");
+  if (!totalInput || !container) return;
+
+  totalInput.value = budgetState.totalCapital;
+  if (searchInput) searchInput.value = auctionFilterState.search;
+  if (categorySelect) categorySelect.value = auctionFilterState.category;
+  if (displayOnlyToggle) displayOnlyToggle.checked = auctionFilterState.displayedOnly;
+  const datalist = document.getElementById("team-options");
+  if (datalist) {
+    datalist.innerHTML = teamListCache.map(team => `<option value="${team}"></option>`).join("");
+  }
+  if (bulkWinnerCount && !bulkWinnerCount.value) {
+    bulkWinnerCount.value = "1";
+  }
+
+  const itemIds = Object.keys(auctionItemsState).sort((a, b) => {
+    const aNum = auctionItemsState[a].number || 0;
+    const bNum = auctionItemsState[b].number || 0;
+    return aNum - bNum;
+  });
+  const filteredIds = itemIds.filter((id) => {
+    const item = auctionItemsState[id];
+    if (!item) return false;
+    const search = auctionFilterState.search.trim().toLowerCase();
+    const matchesSearch = !search ||
+      item.name.toLowerCase().includes(search) ||
+      String(item.number).includes(search);
+    const matchesCategory = auctionFilterState.category === "all" || item.category === auctionFilterState.category;
+    const matchesDisplay = !auctionFilterState.displayedOnly || item.display === true;
+    return matchesSearch && matchesCategory && matchesDisplay;
+  });
+
+  if (filteredIds.length === 0) {
+    container.innerHTML = `<div class="text-gray-400 text-xs">No items added yet.</div>`;
+  } else {
+    const rows = filteredIds.map((id) => {
+      const item = auctionItemsState[id];
+      const winnerValue = item.winnerTeam ? item.winnerTeam : "";
+      return `
+        <tr>
+          <td>
+            <button class="btn" data-budget-display="${id}">${item.display ? "DISPLAYED" : "HIDDEN"}</button>
+          </td>
+          <td>
+            <input type="text" class="budget-input" data-budget-category="${id}" value="${item.category.replace(/"/g, '&quot;')}" aria-label="Item category">
+          </td>
+          <td>
+            <input type="text" class="budget-input" data-budget-name="${id}" value="${item.name.replace(/"/g, '&quot;')}" aria-label="Item name">
+          </td>
+          <td>
+            <input type="number" class="budget-input" data-budget-actual="${id}" value="${item.actualValue}" min="0" step="1" aria-label="Actual value">
+          </td>
+          <td>
+            <input class="budget-input" data-budget-winner="${id}" value="${winnerValue.replace(/"/g, '&quot;')}" list="team-options" placeholder="Search team..." aria-label="Winning team">
+          </td>
+          <td>
+            <input type="checkbox" class="budget-toggle" data-budget-reveal="${id}" ${item.reveal ? "checked" : ""} aria-label="Reveal actual value for ${item.name}">
+          </td>
+          <td>
+            <button class="btn" data-budget-reset="${id}" aria-label="Reset bids for ${item.name}">RESET BIDS</button>
+          </td>
+          <td>
+            <button class="btn" data-budget-remove="${id}" aria-label="Remove item ${item.name}">REMOVE</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    container.innerHTML = `
+      <table class="budget-table">
+        <thead>
+          <tr>
+            <th>DISPLAY</th>
+            <th>CATEGORY</th>
+            <th>ITEM NAME</th>
+            <th>ACTUAL VALUE</th>
+            <th>WINNER</th>
+            <th>REVEAL</th>
+            <th>RESET</th>
+            <th>REMOVE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    `;
+  }
+
+  totalInput.oninput = () => {
+    const val = Number(totalInput.value);
+    budgetState.totalCapital = Number.isFinite(val) ? val : 0;
+    scheduleBudgetSave();
+  };
+
+  if (searchInput) {
+    searchInput.oninput = () => {
+      auctionFilterState.search = searchInput.value || "";
+      renderBudgetSection();
+    };
+  }
+
+  if (categorySelect) {
+    categorySelect.onchange = () => {
+      auctionFilterState.category = categorySelect.value || "all";
+      renderBudgetSection();
+    };
+  }
+
+  if (displayOnlyToggle) {
+    displayOnlyToggle.onchange = () => {
+      auctionFilterState.displayedOnly = displayOnlyToggle.checked;
+      renderBudgetSection();
+    };
+  }
+
+  container.querySelectorAll("[data-budget-name]").forEach((input) => {
+    input.addEventListener("input", () => {
+      const id = input.getAttribute("data-budget-name");
+      if (!auctionItemsState[id]) return;
+      auctionItemsState[id].name = input.value.trim() || "Unnamed Item";
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-category]").forEach((input) => {
+    input.addEventListener("input", () => {
+      const id = input.getAttribute("data-budget-category");
+      if (!auctionItemsState[id]) return;
+      auctionItemsState[id].category = input.value.trim() || "Antiques";
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-actual]").forEach((input) => {
+    input.addEventListener("input", () => {
+      const id = input.getAttribute("data-budget-actual");
+      if (!auctionItemsState[id]) return;
+      const val = Number(input.value);
+      auctionItemsState[id].actualValue = Number.isFinite(val) ? val : 0;
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-display]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.getAttribute("data-budget-display");
+      if (!auctionItemsState[id]) return;
+      const nextDisplay = !auctionItemsState[id].display;
+      auctionItemsState[id].display = nextDisplay;
+      if (nextDisplay) {
+        auctionItemsState[id].displayedAt = Date.now();
+      }
+      renderBudgetSection();
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-winner]").forEach((input) => {
+    const id = input.getAttribute("data-budget-winner");
+    if (auctionItemsState[id]) {
+      input.value = auctionItemsState[id].winnerTeam || "";
+      input.dataset.prev = auctionItemsState[id].winnerTeam || "";
+    }
+    input.addEventListener("change", () => {
+      if (!auctionItemsState[id]) return;
+      const value = (input.value || "").trim().toUpperCase();
+      if (!value) {
+        auctionItemsState[id].winnerTeam = "";
+        input.dataset.prev = "";
+        scheduleBudgetSave();
+        return;
+      }
+      if (!teamListCache.includes(value)) {
+        showModal("Team not found. Please select a valid team.");
+        input.value = input.dataset.prev || "";
+        return;
+      }
+      auctionItemsState[id].winnerTeam = value;
+      input.dataset.prev = value;
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-reveal]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const id = input.getAttribute("data-budget-reveal");
+      if (!auctionItemsState[id]) return;
+      auctionItemsState[id].reveal = input.checked;
+      auctionItemsState[id].revealedAt = input.checked ? Date.now() : 0;
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-remove]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.getAttribute("data-budget-remove");
+      if (!auctionItemsState[id]) return;
+      delete auctionItemsState[id];
+      renderBudgetSection();
+      scheduleBudgetSave();
+    });
+  });
+
+  container.querySelectorAll("[data-budget-reset]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const id = button.getAttribute("data-budget-reset");
+      if (!id) return;
+      const ok = await confirmAction("Reset all bids for this item?");
+      if (!ok) return;
+      if (!database) return;
+      const updates = {};
+      teamListCache.forEach((team) => {
+        updates[`${AUCTION_BIDS_PATH}/${team}/${id}`] = null;
+      });
+      database.ref().update(updates).catch((error) => {
+        console.error("Error resetting bids:", error);
+        showModal("Failed to reset bids.");
+      });
+    });
+  });
+}
+
+function loadAuctionConfig() {
+  if (!database) return;
+  Promise.all([
+    database.ref(AUCTION_CONFIG_PATH).once("value"),
+    database.ref(AUCTION_ITEMS_PATH).once("value")
+  ]).then(([configSnap, itemsSnap]) => {
+    budgetState = normalizeBudgetState(configSnap.val());
+    auctionItemsState = normalizeAuctionItems(itemsSnap.val());
+
+    const storedVersion = localStorage.getItem(DEFAULT_ITEMS_VERSION_KEY);
+    const shouldOverwrite = storedVersion !== DEFAULT_ITEMS_VERSION;
+    if (shouldOverwrite) {
+      auctionItemsState = {};
+      DEFAULT_AUCTION_ITEMS.forEach((item) => {
+        const id = `item_${item.number}`;
+        auctionItemsState[id] = {
+          number: item.number,
+          category: item.category,
+          name: item.name,
+          actualValue: item.actualValue,
+          display: true,
+          reveal: false,
+          winnerTeam: "",
+          displayedAt: Date.now(),
+          revealedAt: 0
+        };
+      });
+      localStorage.setItem(DEFAULT_ITEMS_VERSION_KEY, DEFAULT_ITEMS_VERSION);
+    }
+
+    renderBudgetSection();
+
+    if (!configSnap.exists() || !itemsSnap.exists() || shouldOverwrite) {
+      scheduleBudgetSave();
+    }
+  }).catch((error) => {
+    console.error("Error loading auction config:", error);
+    showModal("Failed to load auction settings. Please refresh.");
+  });
+}
+
+function addBudgetItem() {
+  const maxNumber = Object.values(auctionItemsState).reduce((max, item) => Math.max(max, item.number || 0), 0);
+  const number = maxNumber + 1;
+  const id = `item_${number}_${Date.now()}`;
+  auctionItemsState[id] = {
+    number,
+    category: "Antiques",
+    name: "New Item",
+    actualValue: 0,
+    display: true,
+    reveal: false
+  };
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+function revealAllItems() {
+  Object.keys(auctionItemsState).forEach((id) => {
+    auctionItemsState[id].reveal = true;
+    auctionItemsState[id].revealedAt = Date.now();
+  });
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+function hideAllItems() {
+  Object.keys(auctionItemsState).forEach((id) => {
+    auctionItemsState[id].reveal = false;
+    auctionItemsState[id].revealedAt = 0;
+  });
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+function hideAllDisplayedItems() {
+  Object.keys(auctionItemsState).forEach((id) => {
+    auctionItemsState[id].display = false;
+    auctionItemsState[id].displayedAt = 0;
+  });
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+function displayNextItem() {
+  const nextId = Object.keys(auctionItemsState)
+    .sort((a, b) => (auctionItemsState[a].number || 0) - (auctionItemsState[b].number || 0))
+    .find((id) => auctionItemsState[id] && auctionItemsState[id].display === false);
+  if (!nextId) {
+    showModal("All items are already displayed.");
+    return;
+  }
+  auctionItemsState[nextId].display = true;
+  auctionItemsState[nextId].displayedAt = Date.now();
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+function revealNextItem() {
+  const nextId = Object.keys(auctionItemsState)
+    .sort((a, b) => (auctionItemsState[a].number || 0) - (auctionItemsState[b].number || 0))
+    .find((id) => {
+      const item = auctionItemsState[id];
+      return item && item.display === true && item.reveal === false;
+    });
+  if (!nextId) {
+    showModal("No displayed items left to reveal.");
+    return;
+  }
+  auctionItemsState[nextId].reveal = true;
+  auctionItemsState[nextId].revealedAt = Date.now();
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+function assignWinnerNext() {
+  const select = document.getElementById("auction-winner-bulk");
+  const countInput = document.getElementById("auction-winner-count");
+  if (!select || !countInput) return;
+  const winner = (select.value || "").trim().toUpperCase();
+  const count = Math.max(1, Number(countInput.value) || 1);
+  if (!winner) {
+    showModal("Select a winner first.");
+    return;
+  }
+  if (!teamListCache.includes(winner)) {
+    showModal("Team not found. Please select a valid team.");
+    return;
+  }
+  const ids = Object.keys(auctionItemsState)
+    .sort((a, b) => (auctionItemsState[a].number || 0) - (auctionItemsState[b].number || 0))
+    .filter((id) => {
+      const item = auctionItemsState[id];
+      return item && item.display === true && !item.winnerTeam;
+    })
+    .slice(0, count);
+
+  if (ids.length === 0) {
+    showModal("No displayed items without winners.");
+    return;
+  }
+
+  ids.forEach((id) => {
+    auctionItemsState[id].winnerTeam = winner;
+  });
+  renderBudgetSection();
+  scheduleBudgetSave();
+}
+
+// ==========================================
+// LEADERBOARD IMPLEMENTATION
+// ==========================================
+
+let leaderboardAutoRefresh = false;
+let leaderboardInterval = null;
+let lastLeaderboardData = null;
+
+function formatINR(amount) {
+  return Number(amount).toLocaleString('en-IN') + ' pts';
+}
+
+function calculateTeamScores() {
+  return new Promise((resolve) => {
+    const scores = {};
+    
+    database.ref('auctionBids').once('value', (bidsSnapshot) => {
+      const allBids = bidsSnapshot.val() || {};
+      
+      database.ref('auctionItems').once('value', (itemsSnapshot) => {
+        const items = itemsSnapshot.val() || {};
+        
+        database.ref('auctionConfig').once('value', (configSnapshot) => {
+          const config = configSnapshot.val() || {};
+          const totalCapital = config.totalCapital || 100000;
+          
+          Object.entries(allBids).forEach(([team, teamBids]) => {
+            let totalSpent = 0;
+            let totalProfit = 0;
+            let itemsWon = 0;
+            let itemsRevealed = 0;
+            let revealedProfit = 0;
+            const details = [];
+            
+            Object.entries(teamBids).forEach(([itemId, bid]) => {
+              if (bid.status === 'won' || bid.status === 'locked') {
+                totalSpent += bid.bid || 0;
+                itemsWon++;
+                
+                const item = items[itemId];
+                if (item && item.reveal) {
+                  const profit = (item.actualValue || 0) - (bid.bid || 0);
+                  totalProfit += profit;
+                  revealedProfit += profit;
+                  itemsRevealed++;
+                  
+                  details.push({
+                    itemName: item.name || 'Unknown',
+                    itemNumber: item.number || '',
+                    category: item.category || '',
+                    bid: bid.bid || 0,
+                    actualValue: item.actualValue || 0,
+                    profit: profit,
+                    revealed: true,
+                    status: bid.status
+                  });
+                } else if (item) {
+                  details.push({
+                    itemName: item.name || 'Unknown',
+                    itemNumber: item.number || '',
+                    category: item.category || '',
+                    bid: bid.bid || 0,
+                    actualValue: 0,
+                    profit: 0,
+                    revealed: false,
+                    status: bid.status
+                  });
+                }
+              }
+            });
+            
+            scores[team] = {
+              totalSpent,
+              totalProfit: revealedProfit,
+              potentialProfit: totalProfit,
+              itemsWon,
+              itemsRevealed,
+              capitalRemaining: totalCapital - totalSpent,
+              totalCapital,
+              details: details.sort((a, b) => b.revealed ? 1 : -1)
+            };
+          });
+          
+          lastLeaderboardData = scores;
+          resolve(scores);
+        });
+      });
+    });
+  });
+}
+
+function refreshLeaderboard() {
+  const btn = document.getElementById('refresh-leaderboard-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'â³ REFRESHING...';
+  }
+  
+  calculateTeamScores().then(scores => {
+    renderLeaderboard(scores);
+    renderLeaderboardStats(scores);
+    
+    const now = new Date().toLocaleTimeString();
+    const label = document.getElementById('leaderboard-last-update');
+    if (label) label.textContent = `Last updated: ${now}`;
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'ðŸ”„ REFRESH NOW';
+    }
+  });
+}
+
+function renderLeaderboardStats(scores) {
+  const teams = Object.keys(scores).length;
+  const totalItems = Object.values(scores).reduce((sum, s) => sum + s.itemsWon, 0);
+  const totalSpent = Object.values(scores).reduce((sum, s) => sum + s.totalSpent, 0);
+  const overBudget = Object.values(scores).filter(s => s.capitalRemaining < 0).length;
+  
+  const html = `
+    <div style="background:#1a1a1a;border:1px solid #333;padding:16px;border-radius:8px;">
+      <div style="color:#888;font-size:11px;margin-bottom:4px;">TEAMS COMPETING</div>
+      <div style="color:white;font-size:24px;font-weight:bold;">${teams}</div>
+    </div>
+    <div style="background:#1a1a1a;border:1px solid #333;padding:16px;border-radius:8px;">
+      <div style="color:#888;font-size:11px;margin-bottom:4px;">TOTAL ITEMS WON</div>
+      <div style="color:white;font-size:24px;font-weight:bold;">${totalItems}</div>
+    </div>
+    <div style="background:#1a1a1a;border:1px solid #333;padding:16px;border-radius:8px;">
+      <div style="color:#888;font-size:11px;margin-bottom:4px;">TOTAL SPENT</div>
+      <div style="color:white;font-size:24px;font-weight:bold;">${formatINR(totalSpent)}</div>
+    </div>
+    <div style="background:${overBudget > 0 ? '#4a0000' : '#1a1a1a'};border:1px solid ${overBudget > 0 ? '#ef4444' : '#333'};padding:16px;border-radius:8px;">
+      <div style="color:#888;font-size:11px;margin-bottom:4px;">OVER LIMIT</div>
+      <div style="color:${overBudget > 0 ? '#ef4444' : 'white'};font-size:24px;font-weight:bold;">${overBudget}</div>
+    </div>
+  `;
+  
+  const stats = document.getElementById('leaderboard-stats');
+  if (stats) stats.innerHTML = html;
+}
+
+function renderLeaderboard(scores) {
+  const sorted = Object.entries(scores).sort((a, b) => {
+    if (b[1].totalProfit !== a[1].totalProfit) {
+      return b[1].totalProfit - a[1].totalProfit;
+    }
+    return b[1].itemsRevealed - a[1].itemsRevealed;
+  });
+  
+  const html = `
+    <div style="overflow-x:auto;">
+      <table class="admin-table" style="min-width:900px;">
+        <thead>
+          <tr>
+            <th style="width:60px;">RANK</th>
+            <th>TEAM</th>
+            <th>ITEMS WON</th>
+            <th>ITEMS REVEALED</th>
+            <th>TOTAL SPENT</th>
+            <th>POINTS LEFT</th>
+            <th>TOTAL P/L</th>
+            <th>STATUS</th>
+            <th style="width:120px;">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sorted.map(([team, data], idx) => {
+            const rank = idx + 1;
+            const medal = rank === 1 ? 'ðŸ¥‡' : rank === 2 ? 'ðŸ¥ˆ' : rank === 3 ? 'ðŸ¥‰' : rank;
+            const profitColor = data.totalProfit > 0 ? '#22c55e' : data.totalProfit < 0 ? '#ef4444' : '#888';
+            const overBudget = data.capitalRemaining < 0;
+            const percentSpent = (data.totalSpent / data.totalCapital) * 100;
+            
+            return `
+              <tr style="${overBudget ? 'background:#4a0000;' : idx === 0 ? 'background:#1a3a1a;' : ''}">
+                <td style="text-align:center;font-size:24px;">${medal}</td>
+                <td style="font-weight:bold;font-size:14px;">${team}</td>
+                <td style="text-align:center;">
+                  <div style="font-size:18px;font-weight:bold;">${data.itemsWon}</div>
+                </td>
+                <td style="text-align:center;">
+                  <div style="font-size:14px;color:#888;">${data.itemsRevealed} / ${data.itemsWon}</div>
+                  <div style="font-size:10px;color:#666;">${data.itemsRevealed > 0 ? ((data.itemsRevealed/data.itemsWon)*100).toFixed(0) + '%' : '0%'}</div>
+                </td>
+                <td style="text-align:center;">
+                  <div style="font-size:14px;">${formatINR(data.totalSpent)}</div>
+                  <div style="font-size:10px;color:#666;">${percentSpent.toFixed(1)}% of points</div>
+                </td>
+                <td style="text-align:center;color:${overBudget ? '#ef4444' : data.capitalRemaining < data.totalCapital * 0.1 ? '#f59e0b' : '#888'}">
+                  <div style="font-size:14px;font-weight:bold;">${formatINR(data.capitalRemaining)}</div>
+                </td>
+                <td style="text-align:center;">
+                  <div style="font-size:18px;font-weight:bold;color:${profitColor};">
+                    ${data.totalProfit > 0 ? '+' : ''}${formatINR(data.totalProfit)}
+                  </div>
+                  ${data.itemsRevealed < data.itemsWon ? `<div style="font-size:10px;color:#888;">${data.itemsWon - data.itemsRevealed} unrevealed</div>` : ''}
+                </td>
+                <td style="text-align:center;">
+                  ${overBudget 
+                    ? '<span style="color:#ef4444;font-weight:bold;">âš ï¸ OVER LIMIT</span>' 
+                    : percentSpent > 90 
+                      ? '<span style="color:#f59e0b;">âš ï¸ LOW POINTS</span>'
+                      : '<span style="color:#22c55e;">âœ“ OK</span>'}
+                </td>
+                <td style="text-align:center;">
+                  <button class="btn" onclick="showTeamDetails('${team}')" style="font-size:10px;padding:6px 12px;">
+                    VIEW DETAILS
+                  </button>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  const container = document.getElementById('leaderboard-container');
+  if (container) container.innerHTML = html;
+}
+
+function showTeamDetails(team) {
+  if (!lastLeaderboardData || !lastLeaderboardData[team]) {
+    alert('No data for team: ' + team);
+    return;
+  }
+  
+  const data = lastLeaderboardData[team];
+  
+  const titleEl = document.getElementById('team-details-title');
+  if (titleEl) titleEl.textContent = `TEAM ${team} - DETAILED BREAKDOWN`;
+  
+  const contentEl = document.getElementById('team-details-content');
+  if (!contentEl) return;
+  contentEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;padding:20px;background:#1a1a1a;border-radius:8px;">
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:4px;">TOTAL SPENT</div>
+        <div style="color:white;font-size:20px;font-weight:bold;">${formatINR(data.totalSpent)}</div>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:4px;">POINTS LEFT</div>
+        <div style="color:${data.capitalRemaining < 0 ? '#ef4444' : 'white'};font-size:20px;font-weight:bold;">
+          ${formatINR(data.capitalRemaining)}
+        </div>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:4px;">ITEMS WON</div>
+        <div style="color:white;font-size:20px;font-weight:bold;">${data.itemsWon}</div>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:4px;">TOTAL P/L</div>
+        <div style="color:${data.totalProfit > 0 ? '#22c55e' : data.totalProfit < 0 ? '#ef4444' : 'white'};font-size:20px;font-weight:bold;">
+          ${data.totalProfit > 0 ? '+' : ''}${formatINR(data.totalProfit)}
+        </div>
+      </div>
+    </div>
+    
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ITEM</th>
+          <th>BID</th>
+          <th>ACTUAL VALUE</th>
+          <th>PROFIT/LOSS</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.details.map(d => {
+          const profitColor = d.profit > 0 ? '#22c55e' : d.profit < 0 ? '#ef4444' : '#888';
+          return `
+            <tr style="${!d.revealed ? 'opacity:0.6;' : ''}">
+              <td>
+                <div style="font-weight:bold;">${d.itemName}</div>
+                <div style="font-size:10px;color:#888;">${d.category} â€¢ #${d.itemNumber}</div>
+              </td>
+              <td style="text-align:center;font-size:14px;">
+                ${formatINR(d.bid)}
+              </td>
+              <td style="text-align:center;font-size:14px;">
+                ${d.revealed ? formatINR(d.actualValue) : '<span style="color:#666;">NOT REVEALED</span>'}
+              </td>
+              <td style="text-align:center;font-weight:bold;font-size:16px;color:${profitColor}">
+                ${d.revealed ? (d.profit > 0 ? '+' : '') + formatINR(d.profit) : '-'}
+              </td>
+              <td style="text-align:center;font-size:11px;text-transform:uppercase;">
+                ${d.status === 'locked' ? 'ðŸ”’ Locked' : d.revealed ? 'âœ“ Revealed' : 'â³ Pending'}
+              </td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  
+  document.getElementById('team-details-modal').style.display = 'block';
+}
+
+function closeTeamDetails() {
+  document.getElementById('team-details-modal').style.display = 'none';
+}
+
+function toggleAutoRefresh() {
+  leaderboardAutoRefresh = !leaderboardAutoRefresh;
+  const btn = document.getElementById('toggle-auto-refresh');
+  
+  if (leaderboardAutoRefresh) {
+    btn.textContent = 'â¸ï¸ AUTO-REFRESH: ON';
+    btn.style.background = '#22c55e';
+    startAutoRefresh();
+  } else {
+    btn.textContent = 'â–¶ï¸ AUTO-REFRESH: OFF';
+    btn.style.background = '';
+    stopAutoRefresh();
+  }
+}
+
+function startAutoRefresh() {
+  if (leaderboardInterval) clearInterval(leaderboardInterval);
+  
+  leaderboardInterval = setInterval(() => {
+    refreshLeaderboard();
+  }, 10000);
+  
+  refreshLeaderboard();
+}
+
+function stopAutoRefresh() {
+  if (leaderboardInterval) {
+    clearInterval(leaderboardInterval);
+    leaderboardInterval = null;
+  }
+}
+
+function exportLeaderboard() {
+  if (!lastLeaderboardData) {
+    alert('No leaderboard data. Please refresh first.');
+    return;
+  }
+  
+  const sorted = Object.entries(lastLeaderboardData).sort((a, b) => b[1].totalProfit - a[1].totalProfit);
+  
+  let csv = 'Rank,Team,Items Won,Items Revealed,Total Spent,Points Left,Total P/L,Status\n';
+  
+  sorted.forEach(([team, data], idx) => {
+    const rank = idx + 1;
+    const status = data.capitalRemaining < 0 ? 'OVER LIMIT' : 'Within Budget';
+    csv += `${rank},${team},${data.itemsWon},${data.itemsRevealed},${data.totalSpent},${data.capitalRemaining},${data.totalProfit},${status}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `leaderboard_${new Date().toISOString().split('T')[0]}_${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function checkSuspiciousActivity() {
+  database.ref('auctionBids').once('value', (bidsSnap) => {
+    database.ref('auctionItems').once('value', (itemsSnap) => {
+      const allBids = bidsSnap.val() || {};
+      const items = itemsSnap.val() || {};
+      
+      const suspicious = [];
+      
+      Object.entries(allBids).forEach(([team, teamBids]) => {
+        Object.entries(teamBids).forEach(([itemId, bid]) => {
+          const item = items[itemId];
+          if (item && item.reveal && item.revealedAt && bid.updatedAt) {
+            if (bid.updatedAt > item.revealedAt) {
+              const timeDiff = (bid.updatedAt - item.revealedAt) / 1000;
+              suspicious.push({
+                team,
+                itemName: item.name,
+                itemId,
+                bidAmount: bid.bid,
+                actualValue: item.actualValue,
+                timeDiff,
+                profit: item.actualValue - bid.bid
+              });
+            }
+          }
+        });
+      });
+      
+      if (suspicious.length === 0) {
+        document.getElementById('suspicious-content').innerHTML = `
+          <div style="text-align:center;padding:40px;">
+            <div style="font-size:48px;margin-bottom:16px;">âœ“</div>
+            <div style="color:#22c55e;font-size:18px;font-weight:bold;">NO SUSPICIOUS ACTIVITY DETECTED</div>
+            <div style="color:#888;font-size:12px;margin-top:8px;">All bids were entered before reveal or within acceptable timeframe.</div>
+          </div>
+        `;
+      } else {
+        const html = `
+          <div style="margin-bottom:20px;padding:16px;background:#4a0000;border:1px solid #ef4444;border-radius:8px;">
+            <div style="color:#ef4444;font-size:16px;font-weight:bold;">âš ï¸ ${suspicious.length} SUSPICIOUS ${suspicious.length === 1 ? 'ACTIVITY' : 'ACTIVITIES'} DETECTED</div>
+            <div style="color:#888;font-size:12px;margin-top:4px;">Bids changed after actual value was revealed</div>
+          </div>
+          
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>TEAM</th>
+                <th>ITEM</th>
+                <th>BID</th>
+                <th>ACTUAL</th>
+                <th>PROFIT</th>
+                <th>TIME AFTER REVEAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${suspicious.map(s => `
+                <tr style="background:#4a0000;">
+                  <td style="font-weight:bold;">${s.team}</td>
+                  <td>${s.itemName}</td>
+                  <td style="text-align:center;">${formatINR(s.bidAmount)}</td>
+                  <td style="text-align:center;">${formatINR(s.actualValue)}</td>
+                  <td style="text-align:center;color:${s.profit > 0 ? '#22c55e' : '#ef4444'};">
+                    ${s.profit > 0 ? '+' : ''}${formatINR(s.profit)}
+                  </td>
+                  <td style="text-align:center;color:#ef4444;font-weight:bold;">
+                    +${s.timeDiff.toFixed(0)}s
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div style="margin-top:20px;padding:16px;background:#1a1a1a;border-radius:8px;">
+            <div style="color:#888;font-size:12px;line-height:1.6;">
+              <strong>RECOMMENDED ACTION:</strong><br>
+              â€¢ Review these teams manually<br>
+              â€¢ Consider if changes were within acceptable grace period (30 seconds)<br>
+              â€¢ For changes >30s after reveal, consider penalties or disqualification<br>
+              â€¢ Export this report for record keeping
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('suspicious-content').innerHTML = html;
+      }
+      
+      document.getElementById('suspicious-modal').style.display = 'block';
+    });
+  });
+}
+
+function closeSuspiciousModal() {
+  document.getElementById('suspicious-modal').style.display = 'none';
+}
+
+function initializeStates(){
+  getTeamList((teams) => {
+    getTeamStates((states) => {
+      let updated = false;
+      
+      // Ensure all rounds exist
+      for(let r=1; r<=4; r++){
+        if(!states[r]) {
+          states[r] = {};
+          updated = true;
+        }
+        
+        // Ensure all teams exist in each round
+        teams.forEach(team => {
+          if(!states[r][team]) {
+            states[r][team] = "revoked";
+            updated = true;
+          }
+        });
+      }
+      
+      if(updated){
+        database.ref('teamStates').set(states).then(() => {
+          render();
+        }).catch((error) => {
+          console.error("Error initializing states:", error);
+          showError("Failed to initialize team states.");
+        });
+      } else {
+        render();
+      }
+    });
+  });
+}
+
+// ==========================================
+// RENDER
+// ==========================================
+
+function render(){
+  getTeamList((teams) => {
+    teamListCache = teams || [];
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("error-display").style.display = "none";
+    document.getElementById("admin-content").style.display = "block";
+
+    renderBudgetSection();
+  });
+}
+
+function logout(){
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  window.location.href = "rounds.html";
+}
+
+// ==========================================
+// INITIALIZE
+// ==========================================
+
+async function initialize() {
+  // Check authentication first
+  const isAuthorized = await checkAdminAuth();
+  if (!isAuthorized) return;
+  
+  // Check if Firebase is initialized
+  if (!database) {
+    showError("Firebase not initialized. Please check your firebase-config.js file.");
+    return;
+  }
+
+  listenAuctionStatus();
+  loadAuctionConfig();
+  
+  // Ensure team list exists
+  getTeamList((teams) => {
+    if(teams.length === 0 || !teams){
+      setTeamList(["ALPHA", "BETA", "GAMMA"]);
+    }
+    render();
+    refreshLeaderboard();
+  });
+}
+
+// Start initialization when page loads
+window.addEventListener("load", initialize);
+</script>
+
+<!-- Admin Modal -->
+<div id="admin-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+  <div class="modal-panel">
+    <h3 id="admin-modal-title" style="color:#DC2626;font-size:18px;margin-bottom:8px;">NOTICE</h3>
+    <p id="admin-modal-message" style="color:#cfcfcf;font-size:13px;"></p>
+    <input id="admin-modal-input" type="password" class="team-input modal-input" placeholder="Enter admin password" style="width:100%;display:none;" />
+    <div class="modal-actions">
+      <button id="admin-modal-cancel" class="btn" style="max-width:120px;">CANCEL</button>
+      <button id="admin-modal-ok" class="btn" style="max-width:120px;">OK</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+

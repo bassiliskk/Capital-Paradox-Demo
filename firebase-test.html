@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connection Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        body { background: #050505; color: white; font-family: monospace; }
+        .test-box { border: 1px solid #DC2626; padding: 20px; margin: 20px; }
+        .success { color: #22c55e; }
+        .error { color: #DC2626; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-3xl mb-6" style="color: #DC2626;">🔍 FIREBASE CONNECTION TEST</h1>
+    
+    <div class="test-box">
+        <h2 class="text-xl mb-4">Test Results:</h2>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-box">
+        <h2 class="text-xl mb-4">Console Log:</h2>
+        <div id="console-log" class="text-xs"></div>
+    </div>
+    
+    <div class="test-box">
+        <h2 class="text-xl mb-4">Manual Test:</h2>
+        <input 
+            id="test-team" 
+            type="text" 
+            placeholder="Enter team code (e.g., ALPHA)" 
+            class="bg-gray-800 border border-gray-600 p-2 rounded mr-2"
+            style="color: white;">
+        <button 
+            onclick="testTeamLogin()" 
+            class="bg-red-600 px-4 py-2 rounded hover:bg-red-700">
+            Test Login
+        </button>
+        <div id="test-result" class="mt-4"></div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        const results = document.getElementById('results');
+        const consoleLog = document.getElementById('console-log');
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            consoleLog.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+        
+        function showResult(message, success) {
+            const icon = success ? '✅' : '❌';
+            const className = success ? 'success' : 'error';
+            results.innerHTML += `<div class="${className} mb-2">${icon} ${message}</div>`;
+        }
+        
+        // Test 1: Check if Firebase SDK loaded
+        log('Test 1: Checking Firebase SDK...');
+        if (typeof firebase !== 'undefined') {
+            showResult('Firebase SDK loaded successfully', true);
+            log('Firebase SDK version: ' + firebase.SDK_VERSION, 'success');
+        } else {
+            showResult('Firebase SDK NOT loaded', false);
+            log('Firebase SDK missing!', 'error');
+        }
+        
+        // Test 2: Check firebase-config.js loaded
+        log('Test 2: Checking firebase-config.js...');
+        if (typeof firebaseConfig !== 'undefined') {
+            showResult('firebase-config.js loaded', true);
+            log('Config loaded', 'success');
+            log('Config values: ' + JSON.stringify(firebaseConfig, null, 2), 'info');
+        } else {
+            showResult('firebase-config.js NOT loaded', false);
+            log('firebase-config.js missing!', 'error');
+        }
+        
+        // Test 3: Check if Firebase initialized
+        log('Test 3: Checking Firebase initialization...');
+        if (typeof database !== 'undefined' && database !== null) {
+            showResult('Firebase database initialized', true);
+            log('Database object exists', 'success');
+        } else {
+            showResult('Firebase database NOT initialized', false);
+            log('Database is null or undefined', 'error');
+            log('Check if your Firebase config has placeholder values', 'warning');
+        }
+        
+        // Test 4: Check config values
+        log('Test 4: Checking config values...');
+        if (typeof firebaseConfig !== 'undefined') {
+            const hasPlaceholders = 
+                firebaseConfig.apiKey.includes('YOUR_') || 
+                firebaseConfig.appId.includes('YOUR_');
+            
+            if (hasPlaceholders) {
+                showResult('⚠️ Firebase config has PLACEHOLDER values!', false);
+                log('CRITICAL: You need to replace placeholder values in firebase-config.js', 'error');
+                log('Current apiKey: ' + firebaseConfig.apiKey, 'warning');
+                log('Current appId: ' + firebaseConfig.appId, 'warning');
+            } else {
+                showResult('Firebase config values look good', true);
+                log('Config values appear to be filled in', 'success');
+            }
+        }
+        
+        // Test 5: Check if helper functions exist
+        log('Test 5: Checking helper functions...');
+        const functions = [
+            'generateSessionId',
+            'isValidTeamCode',
+            'checkActiveSession',
+            'createActiveSession',
+            'validateAdminAccess'
+        ];
+        
+        let allFunctionsExist = true;
+        functions.forEach(func => {
+            if (typeof window[func] === 'function') {
+                log(`✓ ${func} exists`, 'success');
+            } else {
+                log(`✗ ${func} missing!`, 'error');
+                showResult(`Function ${func} missing`, false);
+                allFunctionsExist = false;
+            }
+        });
+        
+        if (allFunctionsExist) {
+            showResult('All helper functions exist', true);
+        }
+        
+        // Test 6: Try to connect to Firebase
+        log('Test 6: Testing Firebase connection...');
+        if (database) {
+            setTimeout(async () => {
+                try {
+                    log('Attempting to read from Firebase...', 'info');
+                    const testRef = await database.ref('.info/connected').once('value');
+                    const connected = testRef.val();
+                    
+                    if (connected) {
+                        showResult('Firebase connection SUCCESSFUL! 🎉', true);
+                        log('Successfully connected to Firebase!', 'success');
+                        
+                        // Test reading validTeams
+                        log('Test 7: Reading validTeams from Firebase...', 'info');
+                        const teamsSnapshot = await database.ref('validTeams').once('value');
+                        const teams = teamsSnapshot.val();
+                        
+                        if (teams) {
+                            showResult('validTeams data found in Firebase', true);
+                            log('Teams found: ' + JSON.stringify(teams, null, 2), 'success');
+                        } else {
+                            showResult('validTeams data NOT found in Firebase', false);
+                            log('No validTeams in database. You need to add teams in Firebase Console.', 'warning');
+                        }
+                        
+                        // Test reading teamStates
+                        log('Test 8: Reading teamStates from Firebase...', 'info');
+                        const statesSnapshot = await database.ref('teamStates').once('value');
+                        const states = statesSnapshot.val();
+                        
+                        if (states) {
+                            showResult('teamStates data found in Firebase', true);
+                            log('States found: ' + JSON.stringify(states, null, 2), 'success');
+                        } else {
+                            showResult('teamStates data NOT found in Firebase', false);
+                            log('No teamStates in database. You need to add structure in Firebase Console.', 'warning');
+                        }
+                        
+                    } else {
+                        showResult('Firebase shows as disconnected', false);
+                        log('Firebase connection status: disconnected', 'error');
+                    }
+                } catch (error) {
+                    showResult('Firebase connection FAILED', false);
+                    log('Connection error: ' + error.message, 'error');
+                    log('Full error: ' + JSON.stringify(error), 'error');
+                }
+            }, 2000);
+        } else {
+            showResult('Cannot test connection - database not initialized', false);
+            log('Skipping connection test', 'warning');
+        }
+        
+        // Manual test function
+        async function testTeamLogin() {
+            const testResult = document.getElementById('test-result');
+            const teamCode = document.getElementById('test-team').value.trim().toUpperCase();
+            
+            if (!teamCode) {
+                testResult.innerHTML = '<div class="error">Please enter a team code</div>';
+                return;
+            }
+            
+            testResult.innerHTML = '<div class="info">Testing login for: ' + teamCode + '...</div>';
+            log('Manual test: Logging in as ' + teamCode, 'info');
+            
+            if (!database) {
+                testResult.innerHTML = '<div class="error">Database not initialized. Fix Firebase config first!</div>';
+                log('Cannot test - database not initialized', 'error');
+                return;
+            }
+            
+            try {
+                // Test if team is valid
+                log('Checking if team is valid...', 'info');
+                const isValid = await isValidTeamCode(teamCode);
+                log('Team valid: ' + isValid, isValid ? 'success' : 'error');
+                
+                if (!isValid) {
+                    testResult.innerHTML = '<div class="error">Team code "' + teamCode + '" not found in validTeams</div>';
+                    return;
+                }
+                
+                // Test if team has access to round1
+                log('Checking round1 access...', 'info');
+                const round1Snapshot = await database.ref(`teamStates/round1/${teamCode}`).once('value');
+                const round1Status = round1Snapshot.val();
+                log('Round1 status: ' + round1Status, 'info');
+                
+                testResult.innerHTML = `
+                    <div class="success">✅ Team "${teamCode}" is valid!</div>
+                    <div class="info">Round 1 status: ${round1Status || 'not set (defaults to revoked)'}</div>
+                    <div class="warning">To access Round 1, set status to "access" or "passed" in Firebase Console or admin panel.</div>
+                `;
+                
+            } catch (error) {
+                testResult.innerHTML = '<div class="error">Error: ' + error.message + '</div>';
+                log('Test error: ' + error.message, 'error');
+            }
+        }
+        
+        window.testTeamLogin = testTeamLogin;
+    </script>
+</body>
+</html>

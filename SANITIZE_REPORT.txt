@@ -1,0 +1,142 @@
+﻿c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:10:  apiKey: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:11:  authDomain: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:12:  databaseURL: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:13:  projectId: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:14:  storageBucket: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:15:  messagingSenderId: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:16:  appId: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:17:  measurementId: "REDACTED"
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:231:  venue: {
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:233:    address: "Demo Address",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:247:    email: "demo@example.com",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:248:    phone: "+00 00000 00000",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:249:    whatsapp: "#"
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:252:    instagram: "#",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:253:    twitter: "#",
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:333:async function hashPassword(password) {
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:345:function getWhatsAppLink() { return EVENT_DETAILS.contact.whatsapp; }
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-config.js:347:function getVenueInfo() { return EVENT_DETAILS.venue; }
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-test.html:107:                firebaseConfig.apiKey.includes('YOUR_') || 
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-test.html:108:                firebaseConfig.appId.includes('YOUR_');
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-test.html:113:                log('Current apiKey: ' + firebaseConfig.apiKey, 'warning');
+c:\Users\Alfaz1\capital paradox_public_demo\firebase-test.html:114:                log('Current appId: ' + firebaseConfig.appId, 'warning');
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:11:    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:14:    <script src="https://unpkg.com/lucide@latest"></script>
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:100:        @keyframes spin {
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:109:        @keyframes shake {
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:129:        @keyframes slideIn {
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:164:        @media (max-width: 640px) {
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:247:        @media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\divideconquer.html:289:        @keyframes diagonal-scan {
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:11:<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:14:<script src="https://unpkg.com/lucide@latest"></script>
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:124:@keyframes shake {
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:136:@keyframes glitch {
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:190:@keyframes spin {
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:195:@media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\rounds.html:213:@media (min-width: 769px) { 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:11:    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:14:    <script src="https://unpkg.com/lucide@latest"></script>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:105:        @keyframes slide {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:119:        @keyframes pulse {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:136:        @media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:154:        @media (min-width: 769px) { 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:361:                                    <label for="p1_email" class="sr-only">Participant 1 Email</label>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:363:                                        type="email" 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:364:                                        id="p1_email"
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:365:                                        name="p1_email" 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:370:                                        aria-describedby="p1_email_error">
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:371:                                    <p id="p1_email_error" class="field-error">Please enter a valid email</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:372:                                    <p id="p1_email_success" class="field-success">Looks good</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:375:                                    <label for="p1_phone" class="sr-only">Participant 1 Phone</label>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:378:                                        id="p1_phone"
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:379:                                        name="p1_phone" 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:385:                                        aria-describedby="p1_phone_error">
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:386:                                    <p id="p1_phone_error" class="field-error">Please enter a valid 10-digit phone number</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:387:                                    <p id="p1_phone_success" class="field-success">Looks good</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:410:                                    <label for="p2_email" class="sr-only">Participant 2 Email</label>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:412:                                        type="email" 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:413:                                        id="p2_email"
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:414:                                        name="p2_email" 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:419:                                        aria-describedby="p2_email_error">
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:420:                                    <p id="p2_email_error" class="field-error">Please enter a valid email</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:421:                                    <p id="p2_email_success" class="field-success">Looks good</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:424:                                    <label for="p2_phone" class="sr-only">Participant 2 Phone</label>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:427:                                        id="p2_phone"
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:428:                                        name="p2_phone" 
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:434:                                        aria-describedby="p2_phone_error">
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:435:                                    <p id="p2_phone_error" class="field-error">Please enter a valid 10-digit phone number</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:436:                                    <p id="p2_phone_success" class="field-success">Looks good</p>
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:471:                            Having issues? Contact coordinators directly via phone.
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:523:        function validateEmail(email) {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:524:            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:525:            return re.test(email);
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:528:        function validatePhone(phone) {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:530:            return re.test(phone.replace(/\s/g, ''));
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:574:        ['p1_email', 'p2_email'].forEach(id => {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:578:        ['p1_phone', 'p2_phone'].forEach(id => {
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:592:            isValid = validateField('p1_email', validateEmail) && isValid;
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:593:            isValid = validateField('p1_phone', validatePhone) && isValid;
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:595:            isValid = validateField('p2_email', validateEmail) && isValid;
+c:\Users\Alfaz1\capital paradox_public_demo\contact.html:596:            isValid = validateField('p2_phone', validatePhone) && isValid;
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:11:    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:14:    <script src="https://unpkg.com/lucide@latest"></script>
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:96:        @keyframes spin {
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:105:        @keyframes shake {
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:125:        @keyframes slideIn {
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:137:        @media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\auction.html:154:        @media (min-width: 769px) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:215:@keyframes spin {
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:230:@media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:438:    msg.textContent = "Enter admin password:";
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:475:    const password = await requestPassword();
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:477:    if (!password) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:484:      const isValid = await validateAdminAccess(password);
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:486:        await showModal("Invalid password. Redirecting...");
+c:\Users\Alfaz1\capital paradox_public_demo\admin-rounds.html:787:    <input id="admin-modal-input" type="password" class="team-input modal-input" placeholder="Enter admin password" style="width:100%;display:none;" />
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:261:@keyframes spin {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:276:@media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:533:    apiKey: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:534:    authDomain: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:535:    databaseURL: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:536:    projectId: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:537:    storageBucket: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:538:    messagingSenderId: "REDACTED",
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:539:    appId: "REDACTED"
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:544:  async function validateAdminAccess(password) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:631:    msg.textContent = "Enter admin password:";
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:669:    // Prompt for password
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:670:    const password = await requestPassword();
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:672:    if (!password) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:679:      const isValid = await validateAdminAccess(password);
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:681:        await showModal("Invalid password. Redirecting...");
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:808:    { number: 9, category: "Antiques", name: "Gramophone", actualValue: 10200 },
+c:\Users\Alfaz1\capital paradox_public_demo\admin.public.html:1814:    <input id="admin-modal-input" type="password" class="team-input modal-input" placeholder="Enter admin password" style="width:100%;display:none;" />
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:261:@keyframes spin {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:276:@media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:612:    msg.textContent = "Enter admin password:";
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:650:    // Prompt for password
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:651:    const password = await requestPassword();
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:653:    if (!password) {
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:660:      const isValid = await validateAdminAccess(password);
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:662:        await showModal("Invalid password. Redirecting...");
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:789:    { number: 9, category: "Antiques", name: "Gramophone", actualValue: 10200 },
+c:\Users\Alfaz1\capital paradox_public_demo\admin.html:1795:    <input id="admin-modal-input" type="password" class="team-input modal-input" placeholder="Enter admin password" style="width:100%;display:none;" />
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:12:    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:15:    <script src="https://unpkg.com/lucide@latest"></script>
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:68:        @supports (height: 100svh) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:73:        @media (max-width: 640px) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:154:        @media (max-width: 640px) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:199:        @keyframes marquee {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:245:        @keyframes ticker {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:312:        @media (prefers-reduced-motion: reduce) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:330:        @media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:350:        @media (max-width: 640px) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:405:        @media (max-width: 480px) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:419:        @media (min-width: 769px) {
+c:\Users\Alfaz1\capital paradox_public_demo\index.html:423:        @media (min-width: 900px) {
+c:\Users\Alfaz1\capital paradox_public_demo\rules.html:11:    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+c:\Users\Alfaz1\capital paradox_public_demo\rules.html:14:    <script src="https://unpkg.com/lucide@latest"></script>
+c:\Users\Alfaz1\capital paradox_public_demo\rules.html:77:        @media (max-width: 768px) {
+c:\Users\Alfaz1\capital paradox_public_demo\rules.html:156:                            <li class="flex gap-3"><span class="text-capital-red" aria-hidden="true">›</span> <strong class="text-white">Strictly prohibited:</strong> Mobile phones for calculations during events.</li>
+

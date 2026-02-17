@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Round Access Debug Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        body { background: #050505; color: white; font-family: monospace; }
+        .box { border: 1px solid #DC2626; padding: 20px; margin: 20px; }
+        .success { color: #22c55e; }
+        .error { color: #DC2626; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        pre { background: #1a1a1a; padding: 12px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-3xl mb-6" style="color: #DC2626;">🔍 ROUND ACCESS DEBUG TOOL</h1>
+    
+    <!-- Test Team Access -->
+    <div class="box">
+        <h2 class="text-xl mb-4">Test Team Access</h2>
+        <div class="flex gap-2 mb-4">
+            <input 
+                id="test-team" 
+                type="text" 
+                placeholder="Enter team code (e.g., ALPHA)" 
+                class="bg-gray-800 border border-gray-600 p-3 rounded flex-1"
+                style="color: white;">
+            <button 
+                onclick="checkTeamAccess()" 
+                class="bg-red-600 px-6 py-3 rounded hover:bg-red-700">
+                CHECK ACCESS
+            </button>
+        </div>
+        <div id="access-result"></div>
+    </div>
+    
+    <!-- View Database Structure -->
+    <div class="box">
+        <h2 class="text-xl mb-4">Current Database Structure</h2>
+        <button 
+            onclick="viewDatabase()" 
+            class="bg-blue-600 px-6 py-3 rounded hover:bg-blue-700 mb-4">
+            LOAD DATABASE DATA
+        </button>
+        <div id="database-view"></div>
+    </div>
+    
+    <!-- Fix Instructions -->
+    <div class="box">
+        <h2 class="text-xl mb-4">📋 How Round Access Works</h2>
+        <div class="text-sm text-gray-300 space-y-2">
+            <p><strong>To give a team access to a round:</strong></p>
+            <ol class="list-decimal ml-6 space-y-1">
+                <li>Go to Firebase Console → Realtime Database</li>
+                <li>Navigate to: <code class="text-yellow-500">teamStates → round1 → ALPHA</code></li>
+                <li>Set the value to: <code class="text-green-500">"access"</code> or <code class="text-green-500">"passed"</code></li>
+            </ol>
+            <br>
+            <p><strong>Valid status values:</strong></p>
+            <ul class="ml-6 space-y-1">
+                <li>• <code class="text-red-500">"revoked"</code> - Cannot access (default)</li>
+                <li>• <code class="text-green-500">"access"</code> - Can access and view</li>
+                <li>• <code class="text-green-500">"passed"</code> - Completed the round</li>
+                <li>• <code class="text-red-500">"eliminated"</code> - Eliminated from competition</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Console Log -->
+    <div class="box">
+        <h2 class="text-xl mb-4">Console Log</h2>
+        <div id="console-log" class="text-xs bg-black p-4 rounded" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        const consoleLog = document.getElementById('console-log');
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                'success': 'text-green-500',
+                'error': 'text-red-500',
+                'warning': 'text-yellow-500',
+                'info': 'text-blue-500'
+            };
+            const color = colors[type] || colors.info;
+            consoleLog.innerHTML += `<div class="${color}">[${timestamp}] ${message}</div>`;
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+        
+        // Check team access
+        async function checkTeamAccess() {
+            const resultDiv = document.getElementById('access-result');
+            const teamCode = document.getElementById('test-team').value.trim().toUpperCase();
+            
+            if (!teamCode) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a team code</div>';
+                return;
+            }
+            
+            if (!database) {
+                resultDiv.innerHTML = '<div class="error">❌ Firebase not connected</div>';
+                log('Firebase database not initialized', 'error');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="info">🔄 Checking access...</div>';
+            log(`Checking access for team: ${teamCode}`, 'info');
+            
+            try {
+                // Check if team exists in validTeams
+                const validTeamsSnapshot = await database.ref('validTeams').once('value');
+                const validTeams = validTeamsSnapshot.val();
+                
+                let isValidTeam = false;
+                if (validTeams) {
+                    if (Array.isArray(validTeams)) {
+                        isValidTeam = validTeams.includes(teamCode);
+                    } else {
+                        isValidTeam = validTeams[teamCode] === true;
+                    }
+                }
+                
+                log(`Team ${teamCode} valid: ${isValidTeam}`, isValidTeam ? 'success' : 'error');
+                
+                if (!isValidTeam) {
+                    resultDiv.innerHTML = `
+                        <div class="error text-lg mb-3">❌ Team "${teamCode}" NOT FOUND</div>
+                        <div class="text-sm text-gray-400">
+                            This team is not in the validTeams list.<br>
+                            Add it in Firebase Console: <code>validTeams → ${teamCode} → true</code>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Check access to all rounds
+                const teamStatesSnapshot = await database.ref('teamStates').once('value');
+                const teamStates = teamStatesSnapshot.val();
+                
+                log('TeamStates data:', 'info');
+                log(JSON.stringify(teamStates, null, 2), 'info');
+                
+                let html = `<div class="success text-lg mb-4">✅ Team "${teamCode}" is VALID</div>`;
+                html += `<div class="text-sm mb-4">Round Access Status:</div>`;
+                html += `<table class="w-full text-sm">`;
+                html += `<tr class="bg-gray-800"><th class="p-2 text-left">Round</th><th class="p-2 text-left">Status</th><th class="p-2 text-left">Can Access?</th></tr>`;
+                
+                for (let i = 1; i <= 4; i++) {
+                    const roundKey = `round${i}`;
+                    let status = 'not set';
+                    let canAccess = false;
+                    
+                    if (teamStates && teamStates[roundKey] && teamStates[roundKey][teamCode]) {
+                        status = teamStates[roundKey][teamCode];
+                        canAccess = (status === 'access' || status === 'passed');
+                    }
+                    
+                    const statusColor = canAccess ? 'text-green-500' : 'text-red-500';
+                    const accessIcon = canAccess ? '✅' : '❌';
+                    
+                    html += `<tr class="border-b border-gray-800">`;
+                    html += `<td class="p-2">Round ${i}</td>`;
+                    html += `<td class="p-2 ${statusColor}">${status}</td>`;
+                    html += `<td class="p-2">${accessIcon} ${canAccess ? 'YES' : 'NO'}</td>`;
+                    html += `</tr>`;
+                    
+                    log(`Round ${i}: status=${status}, canAccess=${canAccess}`, canAccess ? 'success' : 'warning');
+                }
+                
+                html += `</table>`;
+                
+                html += `<div class="mt-4 text-xs text-gray-400 bg-gray-900 p-3 rounded">`;
+                html += `<strong>How to give access:</strong><br>`;
+                html += `1. Go to Firebase Console → Realtime Database<br>`;
+                html += `2. Navigate to: teamStates → round1 → ${teamCode}<br>`;
+                html += `3. Set value to: <span class="text-green-500">"access"</span> or <span class="text-green-500">"passed"</span><br>`;
+                html += `4. Refresh this page to verify`;
+                html += `</div>`;
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        // View entire database
+        async function viewDatabase() {
+            const viewDiv = document.getElementById('database-view');
+            
+            if (!database) {
+                viewDiv.innerHTML = '<div class="error">❌ Firebase not connected</div>';
+                return;
+            }
+            
+            viewDiv.innerHTML = '<div class="info">🔄 Loading database...</div>';
+            log('Loading full database structure...', 'info');
+            
+            try {
+                // Get validTeams
+                const validTeamsSnapshot = await database.ref('validTeams').once('value');
+                const validTeams = validTeamsSnapshot.val();
+                
+                // Get teamStates
+                const teamStatesSnapshot = await database.ref('teamStates').once('value');
+                const teamStates = teamStatesSnapshot.val();
+                
+                let html = '<div class="space-y-4">';
+                
+                // Show validTeams
+                html += '<div>';
+                html += '<h3 class="text-lg text-yellow-500 mb-2">validTeams:</h3>';
+                if (validTeams) {
+                    html += '<pre class="text-xs">' + JSON.stringify(validTeams, null, 2) + '</pre>';
+                } else {
+                    html += '<div class="error">❌ No validTeams found in database!</div>';
+                }
+                html += '</div>';
+                
+                // Show teamStates
+                html += '<div>';
+                html += '<h3 class="text-lg text-yellow-500 mb-2">teamStates:</h3>';
+                if (teamStates) {
+                    html += '<pre class="text-xs">' + JSON.stringify(teamStates, null, 2) + '</pre>';
+                } else {
+                    html += '<div class="error">❌ No teamStates found in database!</div>';
+                }
+                html += '</div>';
+                
+                // Show what's missing
+                html += '<div class="bg-gray-900 p-4 rounded">';
+                html += '<h3 class="text-lg text-yellow-500 mb-2">⚠️ Issues Found:</h3>';
+                const issues = [];
+                
+                if (!validTeams) {
+                    issues.push('❌ validTeams is missing');
+                }
+                if (!teamStates) {
+                    issues.push('❌ teamStates is missing');
+                }
+                if (teamStates) {
+                    for (let i = 1; i <= 4; i++) {
+                        const roundKey = `round${i}`;
+                        if (!teamStates[roundKey]) {
+                            issues.push(`⚠️ teamStates/${roundKey} is missing`);
+                        }
+                    }
+                }
+                
+                if (issues.length > 0) {
+                    html += '<ul class="text-sm space-y-1">';
+                    issues.forEach(issue => {
+                        html += `<li>${issue}</li>`;
+                    });
+                    html += '</ul>';
+                } else {
+                    html += '<div class="success">✅ Database structure looks good!</div>';
+                }
+                
+                html += '</div>';
+                html += '</div>';
+                
+                viewDiv.innerHTML = html;
+                
+                log('Database loaded successfully', 'success');
+                
+            } catch (error) {
+                log(`Error loading database: ${error.message}`, 'error');
+                viewDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-load database on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded', 'info');
+            if (database) {
+                log('Firebase connected', 'success');
+                setTimeout(() => {
+                    viewDatabase();
+                }, 1000);
+            } else {
+                log('Firebase NOT connected', 'error');
+            }
+        });
+        
+        // Enter key support
+        document.getElementById('test-team').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkTeamAccess();
+        });
+    </script>
+</body>
+</html>
